@@ -1,31 +1,36 @@
-import pandas as pd
-import numpy as np
+##### PART 1 #####
 
-### Part 1
-df = pd.read_csv('input_data.csv')
-df['change'] = df['depths'].diff() # Calculate depth change
-df['direction'] = np.where(
-                            df['change'] < 0, 
-                            'decrease', 
-                            np.where(
-                                df['change'] > 0, 
-                                'increase', 
-                                'no change')) # Categorize change
-inc = len(df.loc[df['direction']=='increase']) # Count number of increases
-print('Part 1 Answer: There are {x} increases in depth measurement'.format(x=inc))
+# Read Data
+with open('./Data/Day01Data.txt', 'r') as f:
+     lines = [line.rstrip(',\n') for line in f]
 
-#############################
+# Initialize counting variable
+counter = 0
+lines = [int(l) for l in lines]
 
-### Part 2
-df['sliding_window'] = df['depths'].rolling(3,min_periods=3).sum() # Calculate rolling depth
-df['sliding_change'] = df['sliding_window'].diff() # Calculate depth change
-df['sliding_direction'] = np.where(
-                                    df['sliding_change'] < 0, 
-                                    'decrease', 
-                                    np.where(
-                                        df['sliding_change'] > 0, 
-                                        'increase', 
-                                        'no change')) # Categorize change
-sliding_inc = len(df.loc[df['sliding_direction']=='increase']) # Count number of increases
-print('Part 2 Answer: There are {x} increases in depth measurement'.format(x=sliding_inc))
+# Loop through list to determine pattern
+for i in range(1, len(lines)):
+    this_num = lines[i]
+    prev_num = lines[i - 1]
+    
+    if this_num > prev_num: 
+        counter += 1
 
+print(f'Part 1 Solution: There are {counter} measurements that are larger than the previous measurement')
+
+##### PART 2 #####
+
+n = 3 # Sliding window size
+counter = 0
+
+for i in range(4, len(lines) + 1):
+    this_window = lines[(i - n):i]
+    last_window = lines[(i - n - 1):(i - 1)]
+
+    this_sum = sum(this_window)
+    last_sum = sum(last_window)
+
+    if this_sum > last_sum:
+        counter += 1
+
+print(f'Part 2 Solution: There are {counter} measurement windows that are larger than the previous measurement window')
