@@ -1,36 +1,35 @@
-import pandas as pd
-import numpy as np
+##### PART 1 #####
 
-df = pd.read_csv('Day2.csv')
+# Read Data
+with open('./Data/Day02Data.txt', 'r') as f:
+     lines = [line.rstrip(',\n') for line in f]
 
-##### Part 1
-df = df['directions'].str.extract('(\w+)\s(\d+)')
-df.columns = ['direction','amount']
-df['amount'] = df['amount'].astype('int64')
+instructions = [l.split(' ') for l in lines]
 
-df['plane'] = np.where(df['direction']=='forward','horizontal','vertical')
-df['multiplier'] = np.where(df['direction']=='up',-1,1)
-df['net_change'] = df['multiplier'] * df['amount']
+x = 0 # horizontal position
+y = 0 # depth
+a = 0 # aim
 
-product1 = df.loc[:,['plane','net_change']].groupby(['plane']).sum().product().item()
+x2 = 0 # 2nd method
+y2 = 0 # 2nd method
 
-print('Part 1: The product of the current position is {x}'.format(x=product1))
+for d in instructions:
+    direction = d[0]
+    magnitude = int(d[1])
 
-##### Part 2
-df['aim'] = np.where(df['plane']=='vertical',df['net_change'],0)
-df['position'] = np.where(df['plane']=='horizontal',df['net_change'],0)
+    if direction == 'up':
+        y -= magnitude
 
-df['curr_aim'] = df['aim'].cumsum()
-df['curr_position'] = df['position'].cumsum()
+        a -= magnitude
+    elif direction == 'down':
+        y += magnitude
+        
+        a += magnitude
+    elif direction == 'forward':
+        x += magnitude
 
-df['depth'] = np.where(df['plane']=='horizontal',df['net_change']*df['curr_aim'],0)
-df['curr_depth'] = df['depth'].cumsum()
+        x2 += magnitude
+        y2 += a * magnitude
 
-max_row = max(df.index)
-
-last_position = df[df.index==max_row]
-last_position = last_position.loc[:,['curr_depth','curr_position']]
-
-product2 = last_position['curr_depth'].item()*last_position['curr_position'].item()
-
-print('Part 2: The product of the real current position is {x}'.format(x=product2))
+print(f'Part 1 Solution: Horizontal Position * Depth = {x} * {y} = {x*y}')
+print(f'Part 2 Solution: Horizontal Position * Depth = {x2} * {y2} = {x2*y2}')
